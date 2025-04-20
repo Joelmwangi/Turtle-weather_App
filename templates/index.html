@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Turtle - Weather App</title>
+
+  <!-- Bootstrap CSS and Icons -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 50px;
+      background: #f2f2f2;
+    }
+    .weather-box {
+      background-color: white;
+      padding: 20px;
+      margin-top: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, button {
+      padding: 10px;
+      font-size: 16px;
+    }
+    .weather-actions button {
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+    }
+  </style>
+</head>
+<body>
+
+  <h2>Turtle Weather App</h2>
+  <p>Type in the city name to check current and upcoming weather</p>
+
+  <form method="POST">
+    <input type="text" name="city" placeholder="Enter City name" required>
+    <button type="submit" class="btn btn-success">Get Weather</button>
+  </form>
+
+  {% if weather %}
+  <div class="weather-box text-start mx-auto mt-4" style="max-width: 500px;">
+    {% if weather.error %}
+      <p>{{ weather.error }}</p>
+    {% else %}
+      <h4>Weather in {{ weather.city }}</h4>
+      <p id="weather-text">
+        Temperature: {{ weather.temperature }} °C<br>
+        Description: {{ weather.description }}<br>
+        Humidity: {{ weather.humidity }}%<br>
+        Wind: {{ weather.wind }} m/s
+      </p>
+
+      <div class="weather-actions d-flex gap-3 mt-3">
+        <!-- Copy -->
+        <button class="btn btn-outline-secondary" onclick="copyWeather()" title="Copy to Clipboard">
+          <i class="bi bi-clipboard"></i>
+        </button>
+
+        <!-- Download -->
+        <button class="btn btn-outline-secondary" onclick="downloadWeather()" title="Download Weather Info">
+          <i class="bi bi-download"></i>
+        </button>
+
+        <!-- Share -->
+        <button class="btn btn-outline-secondary" onclick="shareWeather()" title="Share Weather Info">
+          <i class="bi bi-share-fill"></i>
+        </button>
+      </div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <!-- Footer -->
+  <footer class="footer bg-dark text-white text-center py-4 mt-5">
+    <p class="mb-2">All rights reserved &copy; 2025 Turtle Weather App</p>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="https://joelmwangi.github.io/" class="text-white" target="_blank" title="Portfolio">
+        <i class="bi bi-person-badge-fill fs-4"></i>
+      </a>
+      <a href="https://www.instagram.com/Joel_mwangi1" class="text-white" target="_blank" title="Instagram">
+        <i class="bi bi-instagram fs-4"></i>
+      </a>
+      <a href="https://twitter.com/yourusername" class="text-white" target="_blank" title="X / Twitter">
+        <i class="bi bi-twitter-x fs-4"></i>
+      </a>
+      <a href="mailto:joelmwangi515@gmail.com" class="text-white" title="Gmail">
+        <i class="bi bi-envelope-fill fs-4"></i>
+      </a>
+      <a href="https://wa.me/254112054071" class="text-white" target="_blank" title="WhatsApp">
+        <i class="bi bi-whatsapp fs-4"></i>
+      </a>
+      <a href="https://github.com/Joelmwangi" class="text-white" target="_blank" title="GitHub">
+        <i class="bi bi-github fs-4"></i>
+      </a>
+    </div>
+  </footer>
+
+  <!-- About Me Modal -->
+  <div class="modal fade" id="aboutMeModal" tabindex="-1" aria-labelledby="aboutMeModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title" id="aboutMeModalLabel">About Me</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body text-start">
+          <img src="https://joelmwangi.github.io/assets/img/profile.png" width="100%" height="60%" alt="Joel Mwangi">
+          <p>Hello! 👋 I'm Joel Mwangi (Muturi), a tech enthusiast skilled in:</p>
+          <ul>
+            <li>Systems and Android Apps Development</li>
+            <li>Robotics & science fair innovation</li>
+            <li>Web development & coding projects</li>
+          </ul>
+          <p>I love observing and creating tech solutions that help communities.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- One-Time Popup Script -->
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      if (!localStorage.getItem("aboutMeShown")) {
+        const aboutModal = new bootstrap.Modal(document.getElementById('aboutMeModal'));
+        aboutModal.show();
+        localStorage.setItem("aboutMeShown", "true");
+      }
+    });
+
+    // Copy weather text
+    function copyWeather() {
+      const text = document.getElementById('weather-text').innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Weather info copied to clipboard!");
+      });
+    }
+
+    // Download weather text
+    function downloadWeather() {
+      const text = document.getElementById('weather-text').innerText;
+      const blob = new Blob([text], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "weather-info.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Share weather text
+    function shareWeather() {
+      const text = document.getElementById('weather-text').innerText;
+      if (navigator.share) {
+        navigator.share({
+          title: 'Weather Info',
+          text: text
+        }).catch(console.error);
+      } else {
+        alert("Sharing is not supported in your browser.");
+      }
+    }
+  </script>
+
+</body>
+</html>
